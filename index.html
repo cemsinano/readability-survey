@@ -660,18 +660,17 @@ async function submitToCloud() {
   };
 
   try {
-    const res  = await fetch(APPS_SCRIPT_URL, {
+    // no-cors is required for Google Apps Script from an external static site.
+    // The POST is sent and processed by the script; the response is opaque
+    // (unreadable by the browser), so we show success optimistically.
+    await fetch(APPS_SCRIPT_URL, {
       method:  "POST",
+      mode:    "no-cors",
       body:    JSON.stringify(payload),
     });
-    const json = await res.json();
-    if (json.ok) {
-      statusEl.style.background = "#e6f9f0";
-      statusEl.style.color = "#1a6645";
-      statusEl.textContent = "Responses saved to cloud successfully.";
-    } else {
-      throw new Error(json.error || "Unknown error");
-    }
+    statusEl.style.background = "#e6f9f0";
+    statusEl.style.color = "#1a6645";
+    statusEl.textContent = "Responses submitted. Please also download the CSV below as a backup.";
   } catch (err) {
     statusEl.style.background = "#fff3cd";
     statusEl.style.color = "#856404";
