@@ -453,9 +453,18 @@ async function init() {
     return;
   }
 
+  // In test mode (?test in URL), use only first 3 excerpts
+  if (new URLSearchParams(window.location.search).has("test")) {
+    excerpts = excerpts.slice(0, 3);
+    document.title = "[TEST] " + document.title;
+  }
+
   // Restore saved session
+  const storeKey = new URLSearchParams(window.location.search).has("test")
+    ? STORE + "_test"
+    : STORE;
   try {
-    const saved = JSON.parse(localStorage.getItem(STORE) || "{}");
+    const saved = JSON.parse(localStorage.getItem(storeKey) || "{}");
     raterName  = saved.raterName  || "";
     ratings    = saved.ratings    || {};
     currentIdx = saved.currentIdx || 0;
@@ -598,7 +607,10 @@ function setTrack(slider, grey) {
 // ── Persistence ────────────────────────────────────────────────────────────
 function saveState() {
   try {
-    localStorage.setItem(STORE, JSON.stringify({ raterName, ratings, currentIdx, startTime }));
+    const key = new URLSearchParams(window.location.search).has("test")
+      ? STORE + "_test"
+      : STORE;
+    localStorage.setItem(key, JSON.stringify({ raterName, ratings, currentIdx, startTime }));
   } catch {}
 }
 
