@@ -1,0 +1,656 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Annual Report Readability Study</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: #f0f2f5;
+      color: #1a1a2e;
+      min-height: 100vh;
+      padding-bottom: 40px;
+    }
+
+    .container { max-width: 780px; margin: 0 auto; padding: 24px 16px; }
+
+    /* Screens */
+    .screen { display: none; }
+    .screen.active { display: block; }
+
+    /* Card */
+    .card {
+      background: #fff;
+      border-radius: 12px;
+      padding: 32px;
+      box-shadow: 0 2px 14px rgba(0,0,0,0.07);
+      margin-bottom: 20px;
+    }
+
+    /* Typography */
+    h1 { font-size: 22px; font-weight: 700; margin-bottom: 6px; }
+    h2 { font-size: 18px; font-weight: 600; margin-bottom: 14px; }
+    p  { line-height: 1.65; color: #444; margin-bottom: 12px; }
+    p:last-child { margin-bottom: 0; }
+
+    .subtitle { color: #888; font-size: 14px; margin-bottom: 20px; }
+    .badge {
+      display: inline-block;
+      background: #e8f0fe;
+      color: #3451d1;
+      font-size: 12px;
+      font-weight: 600;
+      padding: 3px 12px;
+      border-radius: 99px;
+      margin-bottom: 14px;
+      letter-spacing: 0.4px;
+      text-transform: uppercase;
+    }
+
+    /* Instructions list */
+    ul.instr { padding-left: 22px; margin: 10px 0 16px; }
+    ul.instr li { line-height: 1.7; color: #444; margin-bottom: 3px; }
+
+    /* Scale legend box */
+    .scale-box {
+      background: #f7f8fe;
+      border-radius: 8px;
+      padding: 12px 18px;
+      margin-bottom: 20px;
+      font-size: 13px;
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+    }
+    .scale-box span { color: #555; }
+    .scale-box strong { color: #1a1a2e; }
+
+    /* Name input */
+    .field-label { font-weight: 600; font-size: 14px; display: block; margin-bottom: 7px; }
+    input[type=text] {
+      width: 100%;
+      padding: 11px 14px;
+      border: 1.5px solid #ddd;
+      border-radius: 8px;
+      font-size: 15px;
+      margin-bottom: 14px;
+      outline: none;
+      transition: border-color 0.15s;
+    }
+    input[type=text]:focus { border-color: #4361ee; }
+
+    /* Buttons */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 10px 22px;
+      border-radius: 8px;
+      font-size: 15px;
+      font-weight: 500;
+      cursor: pointer;
+      border: none;
+      transition: background 0.15s, opacity 0.15s;
+      text-decoration: none;
+    }
+    .btn-primary  { background: #4361ee; color: #fff; }
+    .btn-primary:hover  { background: #3451d1; }
+    .btn-secondary { background: #f0f2f5; color: #444; }
+    .btn-secondary:hover { background: #e2e5ea; }
+    .btn-success  { background: #2ec4b6; color: #fff; font-size: 16px; padding: 14px 28px; }
+    .btn-success:hover  { background: #26a99d; }
+    .btn-full { width: 100%; justify-content: center; }
+
+    /* Progress */
+    .progress-wrap {
+      background: #e8e8e8;
+      border-radius: 99px;
+      height: 7px;
+      margin-bottom: 6px;
+    }
+    .progress-fill {
+      background: #4361ee;
+      height: 100%;
+      border-radius: 99px;
+      transition: width 0.3s ease;
+    }
+    .progress-meta {
+      display: flex;
+      justify-content: space-between;
+      font-size: 13px;
+      color: #888;
+      margin-bottom: 20px;
+    }
+
+    /* Excerpt box */
+    .excerpt-box {
+      background: #fafafa;
+      border-left: 4px solid #4361ee;
+      padding: 18px 22px;
+      border-radius: 0 8px 8px 0;
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: 15px;
+      line-height: 1.85;
+      color: #2c2c2c;
+      margin-bottom: 28px;
+    }
+
+    /* Rating dimensions */
+    .dimension {
+      margin-bottom: 26px;
+      padding-bottom: 24px;
+      border-bottom: 1px solid #f0f0f0;
+    }
+    .dimension:last-of-type { border-bottom: none; margin-bottom: 4px; }
+
+    .dim-title {
+      font-weight: 700;
+      font-size: 14px;
+      color: #1a1a2e;
+      margin-bottom: 3px;
+    }
+    .dim-desc {
+      font-size: 13px;
+      color: #666;
+      line-height: 1.5;
+      margin-bottom: 14px;
+    }
+
+    /* Slider row */
+    .slider-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .slider-anchor {
+      font-size: 11px;
+      color: #999;
+      white-space: nowrap;
+      width: 80px;
+      line-height: 1.3;
+    }
+    .slider-anchor.right { text-align: right; }
+
+    input[type=range] {
+      flex: 1;
+      height: 5px;
+      -webkit-appearance: none;
+      appearance: none;
+      border-radius: 99px;
+      outline: none;
+      cursor: pointer;
+      background: #ddd;
+    }
+    input[type=range]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      background: #4361ee;
+      cursor: pointer;
+      box-shadow: 0 1px 5px rgba(67,97,238,0.35);
+    }
+    input[type=range]::-moz-range-thumb {
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      background: #4361ee;
+      cursor: pointer;
+      border: none;
+    }
+    input[type=range].untouched::-webkit-slider-thumb { background: #bbb; }
+    input[type=range].untouched::-moz-range-thumb     { background: #bbb; }
+
+    .score-badge {
+      font-size: 20px;
+      font-weight: 700;
+      color: #4361ee;
+      width: 32px;
+      text-align: center;
+      flex-shrink: 0;
+    }
+    .score-badge.blank { color: #ccc; }
+
+    /* Warning */
+    .alert {
+      background: #fff8e1;
+      border: 1px solid #ffc107;
+      border-radius: 8px;
+      padding: 11px 16px;
+      font-size: 13px;
+      color: #7d5a00;
+      margin-bottom: 16px;
+      display: none;
+    }
+    .alert.show { display: block; }
+
+    /* Navigation row */
+    .nav-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 22px;
+      padding-top: 18px;
+      border-top: 1px solid #f0f0f0;
+    }
+
+    /* Complete screen stats */
+    .stats { display: flex; gap: 14px; margin: 20px 0; flex-wrap: wrap; }
+    .stat {
+      flex: 1;
+      min-width: 110px;
+      background: #f7f8fe;
+      border-radius: 10px;
+      padding: 16px;
+      text-align: center;
+    }
+    .stat .num { font-size: 28px; font-weight: 700; color: #4361ee; }
+    .stat .lbl { font-size: 12px; color: #888; margin-top: 4px; }
+
+    .complete-icon { font-size: 52px; margin-bottom: 16px; }
+    .note { font-size: 13px; color: #999; margin-top: 10px; text-align: center; }
+
+    /* Loading */
+    .loading-msg { font-size: 16px; color: #888; text-align: center; padding: 60px 0; }
+    .error-msg   { color: #c0392b; }
+
+    @media (max-width: 520px) {
+      .card { padding: 20px 16px; }
+      .scale-box { flex-direction: column; gap: 4px; }
+      .slider-anchor { width: 60px; font-size: 10px; }
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+
+  <!-- LOADING -->
+  <div id="screen-loading" class="screen active">
+    <div class="card">
+      <p class="loading-msg" id="loading-msg">Loading study materials…</p>
+    </div>
+  </div>
+
+  <!-- WELCOME -->
+  <div id="screen-welcome" class="screen">
+    <div class="card">
+      <span class="badge">Research Study</span>
+      <h1>Annual Report Readability Study</h1>
+      <p class="subtitle">University of Ottawa &mdash; PhD Research in Management</p>
+
+      <p>In this study you will read <strong>50 short excerpts</strong> from U.S. corporate annual reports (10-K filings, Management Discussion section) and rate each excerpt on three dimensions of readability. The task takes approximately <strong>60&ndash;90 minutes</strong> and can be completed across multiple sessions.</p>
+
+      <p><strong>What we ask:</strong></p>
+      <ul class="instr">
+        <li>Read each excerpt carefully before rating.</li>
+        <li><strong>No financial expertise is required.</strong> Focus on <em>writing quality</em>, not the business content.</li>
+        <li>Imagine you are a knowledgeable but time-pressed professional reader.</li>
+        <li>Rate each excerpt on three 1&ndash;10 scales by moving the sliders.</li>
+        <li>Your progress is automatically saved in your browser. You can close the tab and return later.</li>
+      </ul>
+
+      <p><strong>Rating scale guide:</strong></p>
+      <div class="scale-box">
+        <span><strong>1&ndash;3</strong>&nbsp; Very difficult / poor</span>
+        <span><strong>4&ndash;6</strong>&nbsp; Moderate</span>
+        <span><strong>7&ndash;10</strong>&nbsp; Easy / excellent</span>
+      </div>
+
+      <label class="field-label" for="rater-name">Your full name (used to label your response file):</label>
+      <input type="text" id="rater-name" placeholder="e.g. Jane Smith" autocomplete="name" />
+      <div id="welcome-error" class="alert show" style="display:none;">Please enter your name before continuing.</div>
+
+      <button class="btn btn-primary btn-full" style="padding:13px;" onclick="startStudy()">
+        Begin Study &rarr;
+      </button>
+      <p class="note" style="margin-top:14px;">By proceeding you agree to participate in this research study.</p>
+    </div>
+  </div>
+
+  <!-- RATING -->
+  <div id="screen-rating" class="screen">
+    <div class="card">
+
+      <!-- Progress -->
+      <div class="progress-meta">
+        <span id="excerpt-counter" style="font-weight:600; color:#1a1a2e;">Excerpt 1 of 50</span>
+        <span id="progress-pct">0% complete</span>
+      </div>
+      <div class="progress-wrap">
+        <div class="progress-fill" id="progress-fill" style="width:0%"></div>
+      </div>
+
+      <p style="font-size:13px; color:#888; margin-bottom:18px;">
+        Read the excerpt below, then move each slider to indicate your rating.
+        You <strong>must</strong> set all three sliders before proceeding.
+      </p>
+
+      <!-- Excerpt text -->
+      <div class="excerpt-box" id="excerpt-text"></div>
+
+      <div id="warning-unrated" class="alert">
+        Please set all three sliders before continuing.
+      </div>
+
+      <!-- Q1: Structural Clarity -->
+      <div class="dimension">
+        <div class="dim-title">1. Structural Clarity</div>
+        <div class="dim-desc">
+          How easy is this text to parse sentence-by-sentence and comprehend
+          word-by-word? Consider sentence length, vocabulary difficulty, and
+          syntactic complexity.
+        </div>
+        <div class="slider-row">
+          <span class="slider-anchor">Very<br>difficult</span>
+          <input type="range" id="q1" min="1" max="10" value="5" class="untouched"
+                 oninput="sliderMoved(this,'v1')" />
+          <span class="score-badge blank" id="v1">&ndash;</span>
+          <span class="slider-anchor right">Very<br>easy</span>
+        </div>
+      </div>
+
+      <!-- Q2: Contextual Quality -->
+      <div class="dimension">
+        <div class="dim-title">2. Contextual Quality</div>
+        <div class="dim-desc">
+          How well does the language suit a sophisticated, professional audience?
+          Consider whether the text is appropriately pitched for an experienced
+          financial reader, well-organised, and logically coherent.
+        </div>
+        <div class="slider-row">
+          <span class="slider-anchor">Very<br>poor</span>
+          <input type="range" id="q2" min="1" max="10" value="5" class="untouched"
+                 oninput="sliderMoved(this,'v2')" />
+          <span class="score-badge blank" id="v2">&ndash;</span>
+          <span class="slider-anchor right">Excellent</span>
+        </div>
+      </div>
+
+      <!-- Q3: Overall Readability -->
+      <div class="dimension">
+        <div class="dim-title">3. Overall Readability</div>
+        <div class="dim-desc">
+          Your holistic judgment: overall, how readable is this excerpt for a
+          knowledgeable but time-pressed reader?
+        </div>
+        <div class="slider-row">
+          <span class="slider-anchor">Very<br>difficult</span>
+          <input type="range" id="q3" min="1" max="10" value="5" class="untouched"
+                 oninput="sliderMoved(this,'v3')" />
+          <span class="score-badge blank" id="v3">&ndash;</span>
+          <span class="slider-anchor right">Very<br>easy</span>
+        </div>
+      </div>
+
+      <!-- Navigation -->
+      <div class="nav-row">
+        <button class="btn btn-secondary" id="btn-prev" onclick="navigate(-1)"
+                style="visibility:hidden;">&larr; Previous</button>
+        <button class="btn btn-primary" id="btn-next" onclick="navigate(1)">
+          Next &rarr;
+        </button>
+      </div>
+
+    </div><!-- /card -->
+  </div><!-- /screen-rating -->
+
+  <!-- COMPLETE -->
+  <div id="screen-complete" class="screen">
+    <div class="card" style="text-align:center;">
+      <div class="complete-icon">&#10003;</div>
+      <h1>Thank you!</h1>
+      <p>You have rated all excerpts. Please download your response file below and email it to the researcher.</p>
+
+      <div class="stats">
+        <div class="stat"><div class="num" id="stat-count">50</div><div class="lbl">Excerpts rated</div></div>
+        <div class="stat"><div class="num" id="stat-avg">&mdash;</div><div class="lbl">Avg. overall score</div></div>
+        <div class="stat"><div class="num" id="stat-time">&mdash;</div><div class="lbl">Minutes taken</div></div>
+      </div>
+
+      <button class="btn btn-success btn-full" onclick="downloadCSV()" style="margin-bottom:14px;">
+        &#8595;&nbsp; Download My Responses (CSV)
+      </button>
+
+      <p class="note">
+        Please email the downloaded <code>.csv</code> file to the researcher.<br>
+        You can re-download at any time by refreshing this page &mdash; your data is stored locally in your browser.
+      </p>
+    </div>
+  </div>
+
+</div><!-- /container -->
+
+<script>
+// ── State ──────────────────────────────────────────────────────────────────
+let excerpts   = [];           // loaded from excerpts.json
+let ratings    = {};           // { internal_id: { q1, q2, q3, t1, t2, t3 } }
+let raterName  = "";
+let currentIdx = 0;
+let startTime  = null;
+
+const STORE = "readability_survey_v1";
+
+// ── Boot ───────────────────────────────────────────────────────────────────
+async function init() {
+  try {
+    const res = await fetch("excerpts.json");
+    if (!res.ok) throw new Error("HTTP " + res.status);
+    const data = await res.json();
+    excerpts = data.sort((a, b) => a.display_order - b.display_order);
+  } catch (err) {
+    document.getElementById("loading-msg").innerHTML =
+      '<span class="error-msg">Could not load <code>excerpts.json</code>.<br>' +
+      "Make sure the file is in the same folder as <code>index.html</code>.</span>";
+    return;
+  }
+
+  // Restore saved session
+  try {
+    const saved = JSON.parse(localStorage.getItem(STORE) || "{}");
+    raterName  = saved.raterName  || "";
+    ratings    = saved.ratings    || {};
+    currentIdx = saved.currentIdx || 0;
+    startTime  = saved.startTime  || null;
+  } catch {}
+
+  if (raterName) {
+    if (Object.keys(ratings).length >= excerpts.length) {
+      showComplete();
+    } else {
+      startTime = startTime || Date.now();
+      showScreen("screen-rating");
+      renderExcerpt(currentIdx);
+    }
+  } else {
+    showScreen("screen-welcome");
+  }
+}
+
+// ── Welcome ────────────────────────────────────────────────────────────────
+function startStudy() {
+  const name = document.getElementById("rater-name").value.trim();
+  if (!name) {
+    document.getElementById("welcome-error").style.display = "block";
+    return;
+  }
+  raterName = name;
+  startTime = Date.now();
+  saveState();
+  showScreen("screen-rating");
+  renderExcerpt(0);
+}
+
+// ── Rating screen ──────────────────────────────────────────────────────────
+function renderExcerpt(idx) {
+  const exc  = excerpts[idx];
+  const done = Object.values(ratings).filter(r => r.t1 && r.t2 && r.t3).length;
+  const pct  = Math.round((done / excerpts.length) * 100);
+
+  document.getElementById("excerpt-counter").textContent =
+    `Excerpt ${idx + 1} of ${excerpts.length}`;
+  document.getElementById("progress-pct").textContent = `${pct}% complete`;
+  document.getElementById("progress-fill").style.width = pct + "%";
+
+  document.getElementById("excerpt-text").textContent = exc.text;
+
+  // Restore or reset sliders
+  const saved = ratings[exc.internal_id] || {};
+  ["q1", "q2", "q3"].forEach((q, i) => {
+    const slider = document.getElementById(q);
+    const vId    = "v" + (i + 1);
+    const tKey   = "t" + (i + 1);
+
+    if (saved[tKey]) {
+      slider.value     = saved[q];
+      slider.className = "touched";
+      setTrack(slider);
+      const vEl = document.getElementById(vId);
+      vEl.textContent = saved[q];
+      vEl.className   = "score-badge";
+    } else {
+      slider.value     = 5;
+      slider.className = "untouched";
+      setTrack(slider, true);
+      const vEl = document.getElementById(vId);
+      vEl.innerHTML = "&ndash;";
+      vEl.className = "score-badge blank";
+    }
+  });
+
+  // Buttons
+  document.getElementById("btn-prev").style.visibility =
+    idx === 0 ? "hidden" : "visible";
+  const isLast = idx === excerpts.length - 1;
+  document.getElementById("btn-next").textContent = isLast
+    ? "Finish \u2713"
+    : "Next \u2192";
+
+  document.getElementById("warning-unrated").classList.remove("show");
+  window.scrollTo(0, 0);
+}
+
+function navigate(dir) {
+  if (dir === 1) {
+    // Validate: all three sliders must be touched
+    const exc = excerpts[currentIdx];
+    const r   = ratings[exc.internal_id] || {};
+    if (!r.t1 || !r.t2 || !r.t3) {
+      document.getElementById("warning-unrated").classList.add("show");
+      return;
+    }
+    document.getElementById("warning-unrated").classList.remove("show");
+    if (currentIdx === excerpts.length - 1) {
+      showComplete();
+      return;
+    }
+    currentIdx++;
+  } else {
+    if (currentIdx === 0) return;
+    currentIdx--;
+  }
+  saveState();
+  renderExcerpt(currentIdx);
+}
+
+function sliderMoved(slider, vId) {
+  const val = parseInt(slider.value);
+  const exc = excerpts[currentIdx];
+  const q   = slider.id;       // "q1" | "q2" | "q3"
+  const tKey = q.replace("q", "t"); // "t1" | "t2" | "t3"
+
+  // Update display
+  const vEl = document.getElementById(vId);
+  vEl.textContent = val;
+  vEl.className   = "score-badge";
+
+  slider.className = "touched";
+  setTrack(slider);
+
+  // Persist rating
+  if (!ratings[exc.internal_id]) {
+    ratings[exc.internal_id] = { q1: 5, q2: 5, q3: 5, t1: false, t2: false, t3: false };
+  }
+  ratings[exc.internal_id][q]    = val;
+  ratings[exc.internal_id][tKey] = true;
+  saveState();
+}
+
+function setTrack(slider, grey) {
+  if (grey) {
+    slider.style.background = "#ddd";
+    return;
+  }
+  const val = parseInt(slider.value);
+  const pct = ((val - 1) / 9) * 100;
+  slider.style.background =
+    `linear-gradient(to right, #4361ee 0%, #4361ee ${pct}%, #ddd ${pct}%, #ddd 100%)`;
+}
+
+// ── Persistence ────────────────────────────────────────────────────────────
+function saveState() {
+  try {
+    localStorage.setItem(STORE, JSON.stringify({ raterName, ratings, currentIdx, startTime }));
+  } catch {}
+}
+
+// ── Complete screen ────────────────────────────────────────────────────────
+function showComplete() {
+  const rated  = Object.values(ratings).filter(r => r.t1 && r.t2 && r.t3).length;
+  const avgQ3  = rated > 0
+    ? (Object.values(ratings).reduce((s, r) => s + (r.q3 || 0), 0) / rated).toFixed(1)
+    : "--";
+  const mins   = startTime ? Math.round((Date.now() - startTime) / 60000) : "--";
+
+  document.getElementById("stat-count").textContent = rated;
+  document.getElementById("stat-avg").textContent   = avgQ3;
+  document.getElementById("stat-time").textContent  = mins;
+  showScreen("screen-complete");
+}
+
+// ── CSV Download ───────────────────────────────────────────────────────────
+function downloadCSV() {
+  const header = [
+    "rater_name", "internal_id", "display_order", "tercile",
+    "structural_clarity", "contextual_quality", "overall_readability", "timestamp"
+  ].join(",");
+
+  const rows = excerpts.map(exc => {
+    const r = ratings[exc.internal_id] || {};
+    return [
+      JSON.stringify(raterName),
+      JSON.stringify(exc.internal_id),
+      exc.display_order,
+      exc.tercile,
+      r.t1 ? r.q1 : "",
+      r.t2 ? r.q2 : "",
+      r.t3 ? r.q3 : "",
+      new Date().toISOString()
+    ].join(",");
+  });
+
+  const csv  = [header, ...rows].join("\n");
+  const blob = new Blob([csv], { type: "text/csv" });
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement("a");
+  a.href     = url;
+  a.download = `readability_ratings_${raterName.replace(/\s+/g, "_")}.csv`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+// ── Utility ────────────────────────────────────────────────────────────────
+function showScreen(id) {
+  document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
+  document.getElementById(id).classList.add("active");
+}
+
+// ── Run ────────────────────────────────────────────────────────────────────
+init();
+</script>
+</body>
+</html>
