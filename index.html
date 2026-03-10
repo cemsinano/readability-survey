@@ -410,13 +410,16 @@
         <div class="stat"><div class="num" id="stat-time">&mdash;</div><div class="lbl">Minutes taken</div></div>
       </div>
 
+      <!-- Cloud save status -->
+      <div id="cloud-status" style="margin-bottom:16px; padding:12px 16px; border-radius:8px; font-size:14px; display:none;"></div>
+
       <button class="btn btn-success btn-full" onclick="downloadCSV()" style="margin-bottom:14px;">
         &#8595;&nbsp; Download My Responses (CSV)
       </button>
 
       <p class="note">
-        Please email the downloaded <code>.csv</code> file to the researcher.<br>
-        You can re-download at any time by refreshing this page &mdash; your data is stored locally in your browser.
+        Your responses have been saved to the cloud automatically.<br>
+        You can also download the CSV as a local backup.
       </p>
     </div>
   </div>
@@ -424,6 +427,9 @@
 </div><!-- /container -->
 
 <script>
+// ── Config — paste your Apps Script Web App URL here ──────────────────────
+const APPS_SCRIPT_URL = "PASTE_YOUR_APPS_SCRIPT_URL_HERE";
+
 // ── State ──────────────────────────────────────────────────────────────────
 let excerpts   = [];           // loaded from excerpts.json
 let ratings    = {};           // { internal_id: { q1, q2, q3, t1, t2, t3 } }
@@ -608,6 +614,58 @@ function showComplete() {
   document.getElementById("stat-avg").textContent   = avgQ3;
   document.getElementById("stat-time").textContent  = mins;
   showScreen("screen-complete");
+  submitToCloud();
+}
+
+// ── Cloud submission ───────────────────────────────────────────────────────
+async function submitToCloud() {
+  const statusEl = document.getElementById("cloud-status");
+
+  if (!APPS_SCRIPT_URL || APPS_SCRIPT_URL.includes("PASTE_YOUR")) {
+    // No URL configured — silently skip, CSV download is the fallback
+    return;
+  }
+
+  statusEl.style.display = "block";
+  statusEl.style.background = "#e8f4fd";
+  statusEl.style.color = "#1a6091";
+  statusEl.textContent = "Saving your responses to the cloud...";
+
+  const payload = {
+    rater_name:   raterName,
+    submitted_at: new Date().toISOString(),
+    ratings: excerpts.map(exc => {
+      const r = ratings[exc.internal_id] || {};
+      return {
+        internal_id:         exc.internal_id,
+        display_order:       exc.display_order,
+        tercile:             exc.tercile,
+        structural_clarity:  r.t1 ? r.q1 : null,
+        contextual_quality:  r.t2 ? r.q2 : null,
+        overall_readability: r.t3 ? r.q3 : null,
+      };
+    })
+  };
+
+  try {
+    const res  = await fetch(APPS_SCRIPT_URL, {
+      method:  "POST",
+      body:    JSON.stringify(payload),
+    });
+    const json = await res.json();
+    if (json.ok) {
+      statusEl.style.background = "#e6f9f0";
+      statusEl.style.color = "#1a6645";
+      statusEl.textContent = "Responses saved to cloud successfully.";
+    } else {
+      throw new Error(json.error || "Unknown error");
+    }
+  } catch (err) {
+    statusEl.style.background = "#fff3cd";
+    statusEl.style.color = "#856404";
+    statusEl.textContent =
+      "Cloud save failed (" + err.message + "). Please download the CSV below and email it to the researcher.";
+  }
 }
 
 // ── CSV Download ───────────────────────────────────────────────────────────
