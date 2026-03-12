@@ -27,7 +27,7 @@ SCORES    = BASE / "llm_readability_scores_CORRECTED.csv"
 TEXT_ROOT = BASE / "thesis_ui_project/SP1500allNew"
 OUT       = Path(__file__).parent / "excerpts.json"
 
-SEED = 42
+SEED = 2025
 N    = 50    # total documents
 
 TERCILE_TARGETS = {"low": 17, "medium": 17, "high": 16}
