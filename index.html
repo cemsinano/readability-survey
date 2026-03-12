@@ -319,7 +319,7 @@
 
       <!-- Progress -->
       <div class="progress-meta">
-        <span id="excerpt-counter" style="font-weight:600; color:#1a1a2e;">Excerpt 1 of 50</span>
+        <span id="excerpt-counter" style="font-weight:600; color:#1a1a2e;">Item 7 Section 1 of 50</span>
         <span id="progress-pct">0% complete</span>
       </div>
       <div class="progress-wrap">
@@ -376,7 +376,7 @@
       <div class="dimension">
         <div class="dim-title">3. Overall Readability</div>
         <div class="dim-desc">
-          Your holistic judgment: overall, how readable is this excerpt for a
+          Your holistic judgment: overall, how readable is this Item 7 section for a
           knowledgeable but time-pressed reader?
         </div>
         <div class="slider-row">
@@ -405,10 +405,10 @@
     <div class="card" style="text-align:center;">
       <div class="complete-icon">&#10003;</div>
       <h1>Thank you!</h1>
-      <p>You have rated all excerpts. Please download your response file below and email it to the researcher.</p>
+      <p>You have rated all Item 7 sections. Please download your response file below and email it to the researcher.</p>
 
       <div class="stats">
-        <div class="stat"><div class="num" id="stat-count">50</div><div class="lbl">Excerpts rated</div></div>
+        <div class="stat"><div class="num" id="stat-count">50</div><div class="lbl">Item 7 sections rated</div></div>
         <div class="stat"><div class="num" id="stat-avg">&mdash;</div><div class="lbl">Avg. overall score</div></div>
         <div class="stat"><div class="num" id="stat-time">&mdash;</div><div class="lbl">Minutes taken</div></div>
       </div>
@@ -508,7 +508,7 @@ function renderExcerpt(idx) {
   const pct  = Math.round((done / excerpts.length) * 100);
 
   document.getElementById("excerpt-counter").textContent =
-    `Excerpt ${idx + 1} of ${excerpts.length}`;
+    `Item 7 Section ${idx + 1} of ${excerpts.length}`;
   document.getElementById("progress-pct").textContent = `${pct}% complete`;
   document.getElementById("progress-fill").style.width = pct + "%";
 
