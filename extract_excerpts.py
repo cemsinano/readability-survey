@@ -2,9 +2,12 @@
 """
 extract_excerpts.py
 
-Extracts 50 stratified Item-7 (MD&A) excerpts for the human validation survey.
+Extracts 50 stratified full Item-7 (MD&A) documents for the human validation survey.
 Stratified by LLM readability score tercile (low / medium / high), with each
 firm appearing at most once.
+
+Table blocks (##TABLE_START ... ##TABLE_END) are stripped from the text before
+inclusion, as they are not readable prose.
 
 Output: excerpts.json  (loaded by index.html)
 
@@ -24,10 +27,8 @@ SCORES    = BASE / "llm_readability_scores_CORRECTED.csv"
 TEXT_ROOT = BASE / "thesis_ui_project/SP1500allNew"
 OUT       = Path(__file__).parent / "excerpts.json"
 
-SEED       = 42
-N          = 50    # total excerpts
-SKIP_W     = 150   # skip opening boilerplate words
-TAKE_W     = 300   # excerpt length in words
+SEED = 42
+N    = 50    # total documents
 
 TERCILE_TARGETS = {"low": 17, "medium": 17, "high": 16}
 # ───────────────────────────────────────────────────────────────────────────
@@ -49,8 +50,8 @@ def load_scores() -> pd.DataFrame:
         return df[["cik", "year", "score"]]
 
     # Fallback: read the large scores file (only Item7, needed columns)
-    print(f"Loading scores from llm_readability_scores_CORRECTED.csv …")
-    print("  (this file is large — may take ~30 s)")
+    print(f"Loading scores from llm_readability_scores_CORRECTED.csv ...")
+    print("  (this file is large -- may take ~30 s)")
     df = pd.read_csv(
         SCORES,
         usecols=["id", "overall_readability_score", "ff48_name"],
@@ -71,16 +72,26 @@ def load_scores() -> pd.DataFrame:
     return df[["cik", "year", "score"]]
 
 
-def read_excerpt(cik: str, year: int) -> str | None:
-    """Read a 300-word window from words 150-450 of the Item-7 file."""
+def read_full_item7(cik: str, year: int) -> str | None:
+    """Read the full Item-7 text, stripping ##TABLE_START...##TABLE_END blocks."""
     path = TEXT_ROOT / str(year) / cik / f"{cik}_{year}_Item7.txt"
     if not path.exists():
         return None
-    raw   = path.read_text(encoding="utf-8", errors="ignore")
-    words = re.sub(r"\s+", " ", raw).strip().split()
-    if len(words) < SKIP_W + TAKE_W:
-        return None
-    return " ".join(words[SKIP_W : SKIP_W + TAKE_W])
+    raw = path.read_text(encoding="utf-8", errors="ignore")
+
+    # Strip table blocks entirely (they are not readable prose)
+    clean = re.sub(r"##TABLE_START.*?##TABLE_END", "", raw, flags=re.DOTALL)
+    # Strip any lone unclosed/unopened tags left over
+    clean = re.sub(r"##TABLE_START[^\n]*", "", clean)
+    clean = re.sub(r"##TABLE_END[^\n]*", "", clean)
+
+    # Collapse runs of blank lines left behind by table removal
+    clean = re.sub(r"\n{3,}", "\n\n", clean).strip()
+
+    if len(clean.split()) < 100:
+        return None  # document too short after stripping
+
+    return clean
 
 
 def main() -> None:
@@ -93,9 +104,9 @@ def main() -> None:
         df["score"], q=3, labels=["low", "medium", "high"]
     )
 
-    excerpts   = []
-    used_ciks  = set()
-    counts     = {t: 0 for t in TERCILE_TARGETS}
+    excerpts  = []
+    used_ciks = set()
+    counts    = {t: 0 for t in TERCILE_TARGETS}
 
     for tercile, target in TERCILE_TARGETS.items():
         pool = (
@@ -109,7 +120,7 @@ def main() -> None:
                 break
             if row["cik"] in used_ciks:
                 continue
-            text = read_excerpt(row["cik"], row["year"])
+            text = read_full_item7(row["cik"], row["year"])
             if text is None:
                 continue
             used_ciks.add(row["cik"])
@@ -122,11 +133,11 @@ def main() -> None:
                 }
             )
         counts[tercile] = collected
-        print(f"  {tercile:6s}: {collected}/{target} excerpts collected")
+        print(f"  {tercile:6s}: {collected}/{target} documents collected")
 
     total = sum(counts.values())
     if total < N:
-        print(f"\nWARNING: only {total} excerpts collected (target {N}).")
+        print(f"\nWARNING: only {total} documents collected (target {N}).")
         print("Check that TEXT_ROOT points to the 10-K text files.")
 
     # Shuffle for presentation order (raters should not see a pattern)
@@ -134,10 +145,15 @@ def main() -> None:
     for i, exc in enumerate(excerpts, 1):
         exc["display_order"] = i
 
+    # Report approximate sizes
+    sizes = [len(e["text"].split()) for e in excerpts]
+    print(f"\nDocument word counts: min={min(sizes)}, max={max(sizes)}, mean={sum(sizes)//len(sizes)}")
+    json_bytes = len(json.dumps(excerpts, ensure_ascii=False).encode("utf-8"))
+    print(f"Output JSON size: {json_bytes / 1_000_000:.1f} MB")
+
     OUT.parent.mkdir(parents=True, exist_ok=True)
     OUT.write_text(json.dumps(excerpts, indent=2, ensure_ascii=False))
-    print(f"\nSaved {len(excerpts)} excerpts to {OUT}")
-    print("Next step: push this folder to GitHub and enable GitHub Pages.")
+    print(f"\nSaved {len(excerpts)} documents to {OUT}")
 
 
 if __name__ == "__main__":
