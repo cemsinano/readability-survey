@@ -284,14 +284,14 @@
       <h1>Annual Report Readability Study</h1>
       <p class="subtitle">University of Ottawa &mdash; PhD Research in Digital Transformation and Innovation</p>
 
-      <p>In this study you will read <strong>100 short excerpts</strong> from U.S. corporate annual reports (10-K filings, Management Discussion section) and rate each excerpt on three dimensions of readability. The task takes approximately <strong>90&ndash;120 minutes</strong> and can be completed across multiple sessions.</p>
+      <p>In this study you will read <strong>100 Management Discussion and Analysis (MD&amp;A) sections</strong> from U.S. corporate annual reports (10-K filings) and rate each document on three dimensions of readability. Each document is approximately 3,000 words. The task is designed to be completed across <strong>multiple sessions</strong> at your own pace.</p>
 
       <p><strong>What we ask:</strong></p>
       <ul class="instr">
-        <li>Read each excerpt carefully before rating.</li>
+        <li>Read each document carefully. The text is scrollable within the reading box.</li>
         <li><strong>No financial expertise is required.</strong> Focus on <em>writing quality</em>, not the business content.</li>
         <li>Imagine you are a knowledgeable but time-pressed professional reader.</li>
-        <li>Rate each excerpt on three 1&ndash;10 scales by moving the sliders.</li>
+        <li>Rate each document on three 1&ndash;10 scales by moving the sliders.</li>
         <li>Your progress is automatically saved in your browser. You can close the tab and return later.</li>
       </ul>
 
@@ -319,7 +319,7 @@
 
       <!-- Progress -->
       <div class="progress-meta">
-        <span id="excerpt-counter" style="font-weight:600; color:#1a1a2e;">Excerpt 1 of 100</span>
+        <span id="excerpt-counter" style="font-weight:600; color:#1a1a2e;">Document 1 of 100</span>
         <span id="progress-pct">0% complete</span>
       </div>
       <div class="progress-wrap">
@@ -327,7 +327,7 @@
       </div>
 
       <p style="font-size:13px; color:#888; margin-bottom:18px;">
-        Read the excerpt below, then move each slider to indicate your rating.
+        Read the full document below (scroll within the box), then move each slider to indicate your rating.
         You <strong>must</strong> set all three sliders before proceeding.
       </p>
 
@@ -376,7 +376,7 @@
       <div class="dimension">
         <div class="dim-title">3. Overall Readability</div>
         <div class="dim-desc">
-          Your holistic judgment: overall, how readable is this excerpt for a
+          Your holistic judgment: overall, how readable is this document for a
           knowledgeable but time-pressed reader?
         </div>
         <div class="slider-row">
@@ -405,10 +405,10 @@
     <div class="card" style="text-align:center;">
       <div class="complete-icon">&#10003;</div>
       <h1>Thank you!</h1>
-      <p>You have rated all excerpts. Please download your response file below and email it to the researcher.</p>
+      <p>You have rated all 100 documents. Please download your response file below and email it to the researcher.</p>
 
       <div class="stats">
-        <div class="stat"><div class="num" id="stat-count">100</div><div class="lbl">Excerpts rated</div></div>
+        <div class="stat"><div class="num" id="stat-count">100</div><div class="lbl">Documents rated</div></div>
         <div class="stat"><div class="num" id="stat-avg">&mdash;</div><div class="lbl">Avg. overall score</div></div>
         <div class="stat"><div class="num" id="stat-time">&mdash;</div><div class="lbl">Minutes taken</div></div>
       </div>
@@ -508,7 +508,7 @@ function renderExcerpt(idx) {
   const pct  = Math.round((done / excerpts.length) * 100);
 
   document.getElementById("excerpt-counter").textContent =
-    `Excerpt ${idx + 1} of ${excerpts.length}`;
+    `Document ${idx + 1} of ${excerpts.length}`;
   document.getElementById("progress-pct").textContent = `${pct}% complete`;
   document.getElementById("progress-fill").style.width = pct + "%";
 
